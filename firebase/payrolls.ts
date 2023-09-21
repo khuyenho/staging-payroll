@@ -74,10 +74,9 @@ export const deletePayroll = async ({ month, year }: Payroll) => {
 };
 
 export const updateFileUrls = async (
-  name: string,
   month: number,
   year: number,
-  fileUrl: string
+  payrollDetails: PayrollDetail[]
 ) => {
   try {
     const newPayrollRef = collection(db, "payrolls");
@@ -86,25 +85,18 @@ export const updateFileUrls = async (
       where("month", "==", month),
       where("year", "==", year)
     );
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach(async (d) => {
-      const payroll = d.data();
-      const payrollDetails = payroll.payrollDetails;
+    const payrollSnapshot = await getDocs(q);
 
-      const matchedDetail = payroll.payrollDetails.find(
-        (detail: PayrollDetail) => detail.fullName === name
-      );
-      if (matchedDetail) {
-        // Element with matching name found in payrollDetails array
-        matchedDetail["fileUrl"] = fileUrl;
-        // Update the document with the modified payrollDetails array
-        const payrollDocRef = doc(db, "payrolls", d.id);
-        updateDoc(payrollDocRef, { payrollDetails });
-      } else {
-        // Element with matching name not found in payrollDetails array
-        console.log("No matching detail found.");
-      }
-    });
+    const payrollDocs = payrollSnapshot.docs;
+
+    if (payrollDocs.length === 1) {
+      const payrollDoc = payrollDocs[0];
+      const payrollRef = doc(db, "payrolls", payrollDoc.id);
+
+      await updateDoc(payrollRef, {
+        payrollDetails: payrollDetails,
+      });
+    }
   } catch (e) {
     return { e };
   }

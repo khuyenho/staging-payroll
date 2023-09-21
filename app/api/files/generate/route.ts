@@ -16,7 +16,7 @@ export const POST = async (req: NextRequest, res: NextApiResponse) => {
   const body = await req.json();
   const { month, year, payrollDetails } = body;
 
-  payrollDetails?.forEach(async (user: any) => {
+  const promises = payrollDetails?.map(async (user: any) => {
     const password = user.employeeCode;
     const docDefinition = {
       content: createPdfTemplate({
@@ -53,8 +53,6 @@ export const POST = async (req: NextRequest, res: NextApiResponse) => {
 
     const pdfDocGenerator = pdfMake.createPdf(docDefinition);
 
-    // Generate the PDF buffer using pdfmake
-
     const buffer = await new Promise<Buffer>((resolve, reject) => {
       pdfDocGenerator.getBuffer((result) => {
         resolve(result);
@@ -67,20 +65,32 @@ export const POST = async (req: NextRequest, res: NextApiResponse) => {
     const bucketName = process.env.GCS_BUCKET;
     const fileblob = bucket.file(filename);
     const blobStream = fileblob.createWriteStream();
-    blobStream.on("finish", () => {
-      console.log("generate finished");
-      const url = `https://storage.googleapis.com/${bucketName}/${filename}`;
-      // Store the URL in your database
-      updateFileUrls(user.fullName, month, year, url);
-    });
 
-    blobStream.on("error", (error) => {
-      // Handle any errors that occur during the file upload
-      console.error("Error uploading file:", error);
-      return NextResponse.json({ success: false, error: error });
+    return new Promise<void>((resolve, reject) => {
+      blobStream.on("finish", async () => {
+        const url = `https://storage.googleapis.com/${bucketName}/${filename}`;
+
+        user.fileUrl = url;
+
+        resolve();
+      });
+
+      blobStream.on("error", (error) => {
+        // Handle any errors that occur during the file upload
+        console.error("Error uploading file:", error);
+        reject(error);
+      });
+
+      blobStream.end(buffer);
     });
-    blobStream.end(buffer);
   });
 
-  return NextResponse.json({ success: true });
+  try {
+    await Promise.all(promises);
+    // Store the URL in your database
+    await updateFileUrls(month, year, payrollDetails);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: error });
+  }
 };
