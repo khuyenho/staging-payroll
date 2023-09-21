@@ -39,60 +39,60 @@ async function keycloakSessionLogOut() {
 }
 
 export const SessionContent = ({ children }: { children: React.ReactNode }) => {
-  const { data: session, status } = useSession();
-  useEffect(() => {
-    const expiresTimeTimestamp = Math.floor(
-      new Date(session?.expires || "").getTime()
-    );
-    const currentTimestamp = Date.now();
-    const timeRemaining = expiresTimeTimestamp - currentTimestamp;
+  // const { data: session, status } = useSession();
+  // useEffect(() => {
+  //   const expiresTimeTimestamp = Math.floor(
+  //     new Date(session?.expires || "").getTime()
+  //   );
+  //   const currentTimestamp = Date.now();
+  //   const timeRemaining = expiresTimeTimestamp - currentTimestamp;
 
-    if (timeRemaining < 0) {
-      // session has expired, logout the user and display session expiration message
-      keycloakSessionLogOut().then(() => signOut({ callbackUrl: "/" }));
-    }
-  }, [session, status]);
+  //   if (timeRemaining < 0) {
+  //     // session has expired, logout the user and display session expiration message
+  //     keycloakSessionLogOut().then(() => signOut({ callbackUrl: "/" }));
+  //   }
+  // }, [session, status]);
 
-  if (status == "loading") {
-    return (
-      <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-        <div className="p-6 space-y-4 md:space-y-6 sm:p-8 text-center flex justify-content">
-          <Loader2 className="animate-spin" /> Loading...
-        </div>
-      </div>
-    );
-  } else if (!session) {
-    return (
-      <div className="bg-gray-50 dark:bg-gray-900 h-screen">
-        <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-full lg:py-0">
-          <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-            <div className="p-6 space-y-4 md:space-y-6 sm:p-8 text-center">
-              <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                Welcome to Admin Site
-              </h1>
-              <Button
-                className="w-full"
-                onClick={() => {
-                  keycloakSessionLogOut().then(() =>
-                    signOut({ callbackUrl: "/" })
-                  );
-                  signIn("keycloak");
-                }}
-              >
-                LOG IN
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // if (status == "loading") {
+  //   return (
+  //     <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+  //       <div className="p-6 space-y-4 md:space-y-6 sm:p-8 text-center flex justify-content">
+  //         <Loader2 className="animate-spin" /> Loading...
+  //       </div>
+  //     </div>
+  //   );
+  // } else if (!session) {
+  //   return (
+  //     <div className="bg-gray-50 dark:bg-gray-900 h-screen">
+  //       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-full lg:py-0">
+  //         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+  //           <div className="p-6 space-y-4 md:space-y-6 sm:p-8 text-center">
+  //             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+  //               Welcome to Admin Site
+  //             </h1>
+  //             <Button
+  //               className="w-full"
+  //               onClick={() => {
+  //                 keycloakSessionLogOut().then(() =>
+  //                   signOut({ callbackUrl: "/" })
+  //                 );
+  //                 signIn("keycloak");
+  //               }}
+  //             >
+  //               LOG IN
+  //             </Button>
+  //           </div>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="min-h-screen flex flex-col">
       <div className="flex items-center justify-between shadow-sm">
         <Header
-          username={session?.user?.email}
+          username={"Username"}
           onClick={() => {
             keycloakSessionLogOut().then(() => signOut({ callbackUrl: "/" }));
           }}
