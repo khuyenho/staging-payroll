@@ -170,20 +170,24 @@ const PayrollDetailsTable = ({
                 </TableCell>
 
                 <TableCell>
-                  <Button
-                    variant={"outline"}
-                    className="hover:text-cyan-700 hover:underline border-0 hover:bg-transparent shadow-transparent w-full text-left p-0"
-                    onClick={() =>
-                      handleDownloadFile(
-                        `Payment Details_${payrollDetail.fullName}_${month}/${year}`,
-                        payrollDetail.fileUrl
-                      )
-                    }
-                  >
-                    {payrollDetail.fileUrl
-                      ? `Payment Details_${payrollDetail.fullName}_${month}/${year}.pdf`
-                      : "Not Generated Yet"}
-                  </Button>
+                  {payrollDetail.fileUrl ? (
+                    <Button
+                      variant={"outline"}
+                      className="hover:text-cyan-700 hover:underline border-0 hover:bg-transparent shadow-transparent w-full text-left p-0"
+                      onClick={() =>
+                        handleDownloadFile(
+                          `Payment Details_${payrollDetail.fullName}_${month}/${year}`,
+                          payrollDetail.fileUrl
+                        )
+                      }
+                    >
+                      {payrollDetail.fileUrl
+                        ? `Payment Details_${payrollDetail.fullName}_${month}/${year}.pdf`
+                        : "Not Generated Yet"}
+                    </Button>
+                  ) : (
+                    "Not Generated Yet"
+                  )}
                 </TableCell>
                 <TableCell>
                   {payrollDetail.emailStatus === "success"
