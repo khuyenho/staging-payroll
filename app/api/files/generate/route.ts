@@ -28,7 +28,7 @@ export const POST = async (req: NextRequest, res: NextApiResponse) => {
         vnBankSalary: user.receiveCLVN,
         offeredSalary: user.offeredSalary,
         dailySalary: Math.floor(user.offeredSalary / 21),
-        monthlySalary: user.salary,
+        monthlySalary: user.salary - user.nightShiftSalary,
         nightShiftSalary: user.nightShiftSalary,
         nightShiftHours: user.nightShiftHours,
         overtimeSalary: user.overtime,
