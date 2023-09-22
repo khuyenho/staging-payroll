@@ -49,7 +49,7 @@ const handleSendAllEmail = async ({
   payrollDetails,
 }: PDFActionButtonType) => {
   try {
-    await toast.promise(
+    const res = await toast.promise(
       fetch(ENDPOINTS.emailSendAll, {
         method: "POST",
         body: JSON.stringify({
@@ -64,6 +64,9 @@ const handleSendAllEmail = async ({
         error: "Failed to send email!",
       }
     );
+    if (res.ok) {
+      mutate(`${ENDPOINTS.payrolls}?month=${month}&year=${year}`);
+    }
   } catch (error) {
     console.error("Error send email:", error);
   }

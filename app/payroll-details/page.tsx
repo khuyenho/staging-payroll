@@ -28,7 +28,7 @@ const PayrollDetail = ({ params: { id } }: Params) => {
     data: payrollInfo,
     error,
     isLoading,
-  } = useSWR(ENDPOINTS.payrolls + `?month=${month}&year=${year}}`, fetcher);
+  } = useSWR(ENDPOINTS.payrolls + `?month=${month}&year=${year}`, fetcher);
   if (error) return "An error has occurred.";
   if (isLoading) return "Loading...";
 

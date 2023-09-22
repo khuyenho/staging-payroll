@@ -71,8 +71,11 @@ const ExcelInput = () => {
 
               header.forEach((attribute: string, idx: number) => {
                 const key = convertHeaderAttribute(attribute);
-                if (key === HEADERS.total) {
-                  totalMoney += row[idx];
+
+                if (key.trim().toLowerCase() === HEADERS.total) {
+                  if (row[idx]) {
+                    totalMoney += row[idx];
+                  }
                 }
 
                 if (key !== "#" && key !== "latestInSGD-Wise")
