@@ -89,6 +89,9 @@ export const authOptions: AuthOptions = {
       return session;
     },
   },
+  pages: {
+    signIn: "/login", // Replace with your custom sign-in page route
+  },
 };
 
 const handler = NextAuth(authOptions);

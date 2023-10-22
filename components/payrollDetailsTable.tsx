@@ -19,9 +19,15 @@ import {
 import useSWR from "swr";
 import PasswordInput from "./passwordInput";
 import ConfirmModal from "./confirmModal";
-import { ENDPOINTS } from "@/app/constant/api";
+import { ENDPOINTS } from "@/constant/api";
 import { toast } from "react-toastify";
 import { PayrollDetail } from "@/types/payroll";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
 
 type PayrollDetailsTableType = {
   data: PayrollDetail[];
@@ -171,20 +177,31 @@ const PayrollDetailsTable = ({
 
                 <TableCell>
                   {payrollDetail.fileUrl ? (
-                    <Button
-                      variant={"outline"}
-                      className="hover:text-cyan-700 hover:underline border-0 hover:bg-transparent shadow-transparent w-full text-left p-0"
-                      onClick={() =>
-                        handleDownloadFile(
-                          `Payment Details_${payrollDetail.fullName}_${month}/${year}`,
-                          payrollDetail.fileUrl
-                        )
-                      }
-                    >
-                      {payrollDetail.fileUrl
-                        ? `Payment Details_${payrollDetail.fullName}_${month}/${year}.pdf`
-                        : "Not Generated Yet"}
-                    </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className="hover:text-cyan-700 hover:underline border-0 hover:bg-transparent shadow-transparent text-left p-0 w-[50px]"
+                            onClick={() =>
+                              handleDownloadFile(
+                                `Payment Details_${payrollDetail.fullName}_${month}/${year}`,
+                                payrollDetail.fileUrl
+                              )
+                            }
+                          >
+                            <p className="truncate">
+                              {payrollDetail.fileUrl
+                                ? `Payment Details_${payrollDetail.fullName}_${month}/${year}.pdf`
+                                : "Not Generated Yet"}
+                            </p>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{`Payment Details_${payrollDetail.fullName}_${month}/${year}.pdf`}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   ) : (
                     "Not Generated Yet"
                   )}

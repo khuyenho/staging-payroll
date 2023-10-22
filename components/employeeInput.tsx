@@ -2,15 +2,14 @@
 
 import React, { ChangeEvent, useState } from "react";
 import { toast } from "react-toastify";
-import { Prisma } from "@prisma/client";
 import useSWR, { mutate } from "swr";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { EMPLOYEE_IMPORT_SHEET_NAME, SHEET_NAME } from "@/utils/constant";
+import { EMPLOYEE_IMPORT_SHEET_NAME } from "@/utils/constant";
 import importSheetToJson from "@/utils/excelImport";
 import { fetcher, validateEmployeeImportFile } from "@/utils/helper";
 import ConfirmModal from "./confirmModal";
-import { ENDPOINTS } from "@/app/constant/api";
+import { ENDPOINTS } from "@/constant/api";
 
 const EmployeeInput = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -25,9 +24,6 @@ const EmployeeInput = () => {
 
   const handleFileUpload = async () => {
     if (selectedFile) {
-      const filename = selectedFile.name.split(".");
-      const [month, year] = filename[0].split("_");
-
       const userData = await importSheetToJson(
         selectedFile,
         EMPLOYEE_IMPORT_SHEET_NAME,
@@ -60,7 +56,6 @@ const EmployeeInput = () => {
             }
           );
           if (res.ok) {
-            // Manually trigger a revalidation of the data
             mutate(ENDPOINTS.users);
           }
         } catch (e) {

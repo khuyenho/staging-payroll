@@ -1,15 +1,16 @@
 "use client";
 
 import React from "react";
-import { useSession, signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import "react-toastify/dist/ReactToastify.min.css";
 import { redirect } from "next/navigation";
+import { ROUTES } from "@/constant/routes";
 
-function Login() {
+const Login = () => {
   const { data: session, status } = useSession();
   if (session) {
-    redirect("/");
+    redirect(ROUTES.payrolls);
   }
   return (
     <div className="bg-gray-50 dark:bg-gray-900 h-screen">
@@ -27,6 +28,6 @@ function Login() {
       </div>
     </div>
   );
-}
+};
 
 export default Login;

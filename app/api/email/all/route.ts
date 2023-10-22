@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import sgMail from "@sendgrid/mail";
-import { SENDER_EMAIL } from "@/app/constant/email";
-import { getFileFromStorage, storage } from "@/lib/gcs";
-import { ENDPOINTS } from "@/app/constant/api";
+import { SENDER_EMAIL } from "@/constant/email";
+import { getFileFromStorage } from "@/lib/gcs";
 import {
   updateFinishedEmailStatus,
   updatePayrollStatus,
@@ -13,9 +12,6 @@ import {
 sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
 
 export const POST = async (request: Request) => {
-  // const session = await getServerSession(authOptions);
-  // if (session) {
-
   try {
     const req = await request.json(); // res now contains body
     const { month, year, payrollDetails } = req;
@@ -52,10 +48,6 @@ export const POST = async (request: Request) => {
     console.log(e);
     return e;
   }
-  //   return NextResponse.json(res);
-
-  // }
-  // return NextResponse.json({ error: "Unauthorized" }, { status: res.status });
 };
 
 type EmailType = {

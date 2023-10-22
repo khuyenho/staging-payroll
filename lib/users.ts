@@ -1,3 +1,4 @@
+import { UserProps } from "@/types/user";
 import prisma from "./prisma";
 
 export const getUsers = async () => {
@@ -9,6 +10,7 @@ export const getUsers = async () => {
     return { e };
   }
 };
+
 export const getActiveUsers = async () => {
   try {
     const users = await prisma.users.findMany({
@@ -21,11 +23,6 @@ export const getActiveUsers = async () => {
   } catch (e) {
     return { e };
   }
-};
-type UserProps = {
-  name: string;
-  email: string;
-  employeeCode: string;
 };
 
 export const importUsers = async (userImportList: UserProps[]) => {

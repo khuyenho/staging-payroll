@@ -1,27 +1,24 @@
 "use client";
 
 import React, { ChangeEvent, useState } from "react";
-import { toast } from "react-toastify";
-import { Prisma, users } from "@prisma/client";
 import useSWR, { mutate } from "swr";
+import { toast } from "react-toastify";
+import { users } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SHEET_NAME } from "@/utils/constant";
 import importSheetToJson from "@/utils/excelImport";
+import ConfirmModal from "./confirmModal";
+import { ENDPOINTS } from "@/constant/api";
+import { HEADERS } from "@/constant/header";
 import {
   convertHeaderAttribute,
-  fetcher,
+  getPaymentDataFromFile,
   validateFileFormat,
 } from "@/utils/helper";
-import ConfirmModal from "./confirmModal";
-import { ENDPOINTS } from "@/app/constant/api";
-import { HEADERS } from "@/app/constant/header";
 
 const ExcelInput = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const { data: users, error, isLoading } = useSWR(ENDPOINTS.users, fetcher);
-  if (error) return "An error has occurred.";
-  if (isLoading) return "Loading...";
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -50,57 +47,22 @@ const ExcelInput = () => {
               `Payroll of ${month}/${year} has existed. Please remove the payroll before importing a new one`
             );
           } else {
-            console.log("importing...");
+            console.log("Importing...");
             const response = await fetch(ENDPOINTS.users, { method: "GET" });
-            const users = await response.json();
 
             const jsonData = await importSheetToJson(
               selectedFile,
               SHEET_NAME,
               1
             );
+
             const header = jsonData[0];
             const dataArray = jsonData.slice(1);
-
-            let totalMoney = 0;
-
-            const resultArray: { [key: string]: any }[] = [];
-            dataArray.forEach((row) => {
-              const obj: { [key: string]: any } = {};
-              let isExisted = false;
-
-              header.forEach((attribute: string, idx: number) => {
-                const key = convertHeaderAttribute(attribute);
-
-                if (key.trim().toLowerCase() === HEADERS.total) {
-                  if (row[idx]) {
-                    totalMoney += row[idx];
-                  }
-                }
-
-                if (key !== "#" && key !== "latestInSGD-Wise")
-                  obj[key] = row[idx];
-
-                if (key === "fullName") {
-                  const isNameEqualIdx = users.findIndex(
-                    (user: users) => user.name === row[idx]
-                  );
-
-                  if (isNameEqualIdx === -1) {
-                    isExisted = true;
-                    return;
-                  } else {
-                    obj["email"] = users[isNameEqualIdx]?.email;
-                    obj["employeeCode"] = users[isNameEqualIdx]?.employee_code;
-                    obj["createdAt"] = Date.now();
-                  }
-                }
-              });
-
-              if (!isExisted) resultArray.push(obj);
-              else {
-                isExisted = false;
-              }
+            const users = await response.json();
+            const { totalMoney, payrollDetails } = getPaymentDataFromFile({
+              header,
+              dataArray,
+              users,
             });
 
             try {
@@ -111,7 +73,7 @@ const ExcelInput = () => {
                     month: parseInt(month),
                     year: parseInt(year),
                     total: totalMoney,
-                    payrollDetails: resultArray,
+                    payrollDetails,
                   }),
                 }),
                 {

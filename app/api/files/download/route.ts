@@ -21,7 +21,7 @@ export const POST = async (req: NextRequest, res: NextApiResponse) => {
     };
 
     // res.send(jsonResponse);
-    return NextResponse.json(jsonResponse);
+    return NextResponse.json(jsonResponse, { status: 200 });
   } catch (error) {
     console.error("Error downloading file:", error);
     return new Response(null, { status: 500 });

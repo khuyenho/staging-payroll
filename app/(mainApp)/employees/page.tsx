@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { EMPLOYEE_IMPORT_SHEET_NAME } from "@/utils/constant";
-import { ENDPOINTS } from "../constant/api";
+import { ENDPOINTS } from "@/constant/api";
 import { users } from "@prisma/client";
 
 const exportToExcel = async () => {

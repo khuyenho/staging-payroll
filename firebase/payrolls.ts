@@ -1,76 +1,71 @@
-import { db } from "./config";
-import {
-  doc,
-  setDoc,
-  collection,
-  query,
-  where,
-  getDocs,
-  deleteDoc,
-  updateDoc,
-} from "firebase/firestore";
-import { NextResponse } from "next/server";
-import { Payroll, PayrollDetail, StrictPayroll } from "@/types/payroll";
+import { PayrollQuery, PayrollDetail, StrictPayroll } from "@/types/payroll";
+import { PAYROLL_STATUS } from "@/constant/payrollStatus";
+import db from "./config";
+import { DocumentData } from "@google-cloud/firestore";
 
-// Create a new payroll document
 export const createPayroll = async ({
   month,
   year,
   total,
   payrollDetails,
 }: StrictPayroll) => {
-  // Add a new document with a generated id
-  const newPayrollRef = doc(collection(db, "payrolls"));
+  const payrollRef = db.collection("payrolls").doc();
 
   try {
-    await setDoc(newPayrollRef, {
+    await payrollRef.set({
       month: month,
       year: year,
       total: total,
-      status: "New",
+      status: PAYROLL_STATUS.new,
       payrollDetails: payrollDetails,
     });
-    return NextResponse.json({ status: 200 });
+
+    return { status: 200 };
   } catch (err) {
     console.log(err);
+    return { status: 500 };
   }
 };
 
-export const getPayrolls = async ({ month, year }: Payroll) => {
-  // Add a new document with a generated id
-  const newPayrollRef = collection(db, "payrolls");
+export const getPayrolls = async ({ month, year }: PayrollQuery) => {
   let q;
   if (month && year) {
-    q = query(
-      newPayrollRef,
-      where("month", "==", month),
-      where("year", "==", year)
-    );
+    q = db
+      .collection("payrolls")
+      .where("month", "==", month)
+      .where("year", "==", year);
   } else {
-    q = query(newPayrollRef);
+    q = db.collection("payrolls");
   }
 
-  const querySnapshot = await getDocs(q);
+  const querySnapshot = await q.get();
 
-  const res: any = [];
+  const res: DocumentData[] = [];
   querySnapshot.forEach((doc) => {
-    // doc.data() is never undefined for query doc snapshots
     res.push(doc.data());
   });
   return res;
 };
 
-export const deletePayroll = async ({ month, year }: Payroll) => {
-  const newPayrollRef = collection(db, "payrolls");
-  const q = query(
-    newPayrollRef,
-    where("month", "==", month),
-    where("year", "==", year)
-  );
-  const querySnapshot = await getDocs(q);
-  querySnapshot.forEach(async (doc) => {
-    await deleteDoc(doc.ref);
+export const deletePayroll = async ({ month, year }: PayrollQuery) => {
+  const payrollRef = db.collection("payrolls");
+  const querySnapshot = await payrollRef
+    .where("month", "==", month)
+    .where("year", "==", year)
+    .get();
+
+  const deletionPromises: Promise<FirebaseFirestore.WriteResult>[] = [];
+  querySnapshot.forEach((doc) => {
+    deletionPromises.push(doc.ref.delete());
   });
+
+  try {
+    await Promise.all(deletionPromises);
+    return { status: 200 };
+  } catch (err) {
+    console.log(err);
+    return { status: 500 };
+  }
 };
 
 export const updateFileUrls = async (
@@ -79,52 +74,49 @@ export const updateFileUrls = async (
   payrollDetails: PayrollDetail[]
 ) => {
   try {
-    const newPayrollRef = collection(db, "payrolls");
-    const q = query(
-      newPayrollRef,
-      where("month", "==", month),
-      where("year", "==", year)
-    );
-    const payrollSnapshot = await getDocs(q);
+    const payrollRef = db.collection("payrolls");
+    const querySnapshot = await payrollRef
+      .where("month", "==", month)
+      .where("year", "==", year)
+      .get();
 
-    const payrollDocs = payrollSnapshot.docs;
-
-    if (payrollDocs.length === 1) {
-      const payrollDoc = payrollDocs[0];
-      const payrollRef = doc(db, "payrolls", payrollDoc.id);
-
-      await updateDoc(payrollRef, {
+    if (querySnapshot.size === 1) {
+      const payrollDoc = querySnapshot.docs[0];
+      await payrollDoc.ref.update({
         payrollDetails: payrollDetails,
       });
     }
-  } catch (e) {
-    return { e };
+
+    return { status: 200 };
+  } catch (err) {
+    console.log(err);
+    return { status: 500 };
   }
 };
 
 export const updatePendingEmailStatus = async (month: number, year: number) => {
   try {
-    const newPayrollRef = collection(db, "payrolls");
-    const q = query(
-      newPayrollRef,
-      where("month", "==", month),
-      where("year", "==", year)
-    );
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach(async (d) => {
-      const payroll = d.data();
-      const payrollDetails = payroll.payrollDetails;
+    const payrollRef = db.collection("payrolls");
+    const querySnapshot = await payrollRef
+      .where("month", "==", month)
+      .where("year", "==", year)
+      .get();
 
+    querySnapshot.forEach(async (doc) => {
+      const payroll = doc.data();
+      const payrollDetails = payroll.payrollDetails;
       payrollDetails.forEach((payrollDetail: PayrollDetail) => {
-        // Element with matching name found in payrollDetails array
-        payrollDetail["emailStatus"] = "pending";
-        // Update the document with the modified payrollDetails array
-        const payrollDocRef = doc(db, "payrolls", d.id);
-        updateDoc(payrollDocRef, { payrollDetails });
+        payrollDetail.emailStatus = "pending";
       });
+
+      const payrollDocRef = payrollRef.doc(doc.id);
+      await payrollDocRef.update({ payrollDetails });
     });
-  } catch (e) {
-    return { e };
+
+    return { status: 200 };
+  } catch (err) {
+    console.log(err);
+    return { status: 500 };
   }
 };
 
@@ -140,31 +132,31 @@ export const updateFinishedEmailStatus = async ({
   failUsers: string[];
 }) => {
   try {
-    const newPayrollRef = collection(db, "payrolls");
-    const q = query(
-      newPayrollRef,
-      where("month", "==", month),
-      where("year", "==", year)
-    );
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach(async (d) => {
-      const payroll = d.data();
-      const payrollDetails = payroll.payrollDetails;
+    const payrollRef = db.collection("payrolls");
+    const querySnapshot = await payrollRef
+      .where("month", "==", month)
+      .where("year", "==", year)
+      .get();
 
+    querySnapshot.forEach(async (doc) => {
+      const payroll = doc.data();
+      const payrollDetails = payroll.payrollDetails;
       payrollDetails.forEach((payrollDetail: PayrollDetail) => {
-        if (successUsers.includes(payrollDetail.fullName))
-          // Element with matching name found in payrollDetails array
-          payrollDetail["emailStatus"] = "success";
-        else if (failUsers.includes(payrollDetail.fullName)) {
-          payrollDetail["emailStatus"] = "fail";
+        if (successUsers.includes(payrollDetail.fullName)) {
+          payrollDetail.emailStatus = "success";
+        } else if (failUsers.includes(payrollDetail.fullName)) {
+          payrollDetail.emailStatus = "fail";
         }
-        // Update the document with the modified payrollDetails array
-        const payrollDocRef = doc(db, "payrolls", d.id);
-        updateDoc(payrollDocRef, { payrollDetails });
       });
+
+      const payrollDocRef = payrollRef.doc(doc.id);
+      await payrollDocRef.update({ payrollDetails });
     });
-  } catch (e) {
-    return { e };
+
+    return { status: 200 };
+  } catch (err) {
+    console.log(err);
+    return { status: 500 };
   }
 };
 
@@ -176,28 +168,22 @@ export const updatePayrollStatus = async ({
   year: number;
 }) => {
   try {
-    const newPayrollRef = collection(db, "payrolls");
-    const q = query(
-      newPayrollRef,
-      where("month", "==", month),
-      where("year", "==", year)
-    );
-    const payrollSnapshot = await getDocs(q);
+    const payrollRef = db.collection("payrolls");
+    const querySnapshot = await payrollRef
+      .where("month", "==", month)
+      .where("year", "==", year)
+      .get();
 
-    const payrollDocs = payrollSnapshot.docs;
-
-    if (payrollDocs.length === 1) {
-      const payrollDoc = payrollDocs[0];
-      payrollDoc;
-      const payrollRef = doc(db, "payrolls", payrollDoc.id);
-
-      await updateDoc(payrollRef, {
-        status: "Paid",
-      });
+    if (querySnapshot.size === 1) {
+      const payrollDoc = querySnapshot.docs[0];
+      const payrollDocRef = payrollRef.doc(payrollDoc.id);
+      await payrollDocRef.update({ status: PAYROLL_STATUS.paid });
+      return { status: 200 };
+    } else {
+      return { status: 404 };
     }
-  } catch (e) {
-    console.log(e);
-
-    return { error: e };
+  } catch (err) {
+    console.log(err);
+    return { status: 500 };
   }
 };

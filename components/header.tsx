@@ -1,6 +1,7 @@
 import React, { MouseEventHandler } from "react";
 import { Button } from "./ui/button";
 import Link from "next/link";
+import { ROUTES } from "@/constant/routes";
 
 function Header({
   username,
@@ -18,10 +19,10 @@ function Header({
               <p className="font-bold text-lg"> Payroll Admin</p>
             </Link>
             <div className="flex gap-5">
-              <Link href="/payrolls">
+              <Link href={ROUTES.payrolls}>
                 <p className="hover:text-cyan-700">Payrolls</p>
               </Link>
-              <Link href="/employees">
+              <Link href={ROUTES.employees}>
                 <p className="hover:text-cyan-700">Employees</p>
               </Link>
             </div>

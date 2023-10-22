@@ -1,11 +1,10 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { useState } from "react";
 import { EyeOff } from "lucide-react";
 import { Eye } from "lucide-react";
 import { Button } from "./ui/button";
 
 const PasswordInput = ({ password }: { password: string }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [pwd, setPassword] = useState(password);
 
   const handleToggleVisibility = () => {
     setShowPassword(!showPassword);
@@ -15,7 +14,7 @@ const PasswordInput = ({ password }: { password: string }) => {
     <div className="flex">
       <input
         type={showPassword ? "text" : "password"}
-        value={pwd}
+        value={password}
         disabled
         className="w-[60px] bg-transparent"
       />

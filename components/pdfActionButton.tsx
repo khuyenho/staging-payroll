@@ -3,10 +3,9 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import ConfirmModal from "@/components/confirmModal";
 import { toast } from "react-toastify";
-import { ENDPOINTS } from "@/app/constant/api";
+import { ENDPOINTS } from "@/constant/api";
 import { mutate } from "swr";
 import { PayrollDetail } from "@/types/payroll";
-import { updatePayrollStatus } from "@/firebase/payrolls";
 
 type PDFActionButtonType = {
   payrollDetails: PayrollDetail[];
@@ -64,8 +63,9 @@ const handleSendAllEmail = async ({
         error: "Failed to send email!",
       }
     );
+
     if (res.ok) {
-      mutate(`${ENDPOINTS.payrolls}?month=${month}&year=${year}`);
+      mutate(ENDPOINTS.payrolls + `?month=${month}&year=${year}`);
     }
   } catch (error) {
     console.error("Error send email:", error);

@@ -1,3 +1,5 @@
+import { HEADERS } from "@/constant/header";
+import { users } from "@prisma/client";
 import { Decimal } from "decimal.js";
 import moment from "moment";
 /**
@@ -92,4 +94,55 @@ export const convertHeaderAttribute = (header: string) => {
   const newHeader = words.join("");
   const translateHeader = newHeader.replace("OT", "Overtime");
   return translateHeader.charAt(0).toLowerCase() + translateHeader.slice(1);
+};
+
+export const getPaymentDataFromFile = ({
+  header,
+  dataArray,
+  users,
+}: {
+  header: string[];
+  dataArray: any[];
+  users: users[];
+}) => {
+  let totalMoney = 0;
+
+  const resultArray: { [key: string]: any }[] = [];
+  dataArray.forEach((row) => {
+    const obj: { [key: string]: any } = {};
+    let isExisted = false;
+
+    header.forEach((attribute: string, idx: number) => {
+      const key = convertHeaderAttribute(attribute);
+      if (key.trim().toLowerCase() === HEADERS.total) {
+        if (row[idx]) {
+          totalMoney += row[idx];
+        }
+      }
+
+      if (key !== "#" && key !== "latestInSGD-Wise") obj[key] = row[idx];
+
+      if (key === "fullName") {
+        const isNameEqualIdx = users.findIndex(
+          (user: users) => user.name === row[idx]
+        );
+
+        if (isNameEqualIdx === -1) {
+          isExisted = true;
+          return;
+        } else {
+          obj["email"] = users[isNameEqualIdx]?.email;
+          obj["employeeCode"] = users[isNameEqualIdx]?.employee_code;
+          obj["createdAt"] = Date.now();
+        }
+      }
+    });
+
+    if (!isExisted) resultArray.push(obj);
+    else {
+      isExisted = false;
+    }
+  });
+
+  return { totalMoney, payrollDetails: resultArray };
 };

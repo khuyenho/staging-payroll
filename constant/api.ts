@@ -8,5 +8,6 @@ export enum ENDPOINTS {
   filesDownload = "/api/files/download",
   emailSendAll = "/api/email/all",
   authLogout = "/api/auth/logout",
-  filesEmployeeImport='/api/files/employee-import'
+  filesEmployeeImport = "/api/files/employee-import",
+  database = "/api/database",
 }

@@ -7,6 +7,15 @@ export type StrictPayroll = {
   payrollDetails: PayrollDetail[];
 };
 
+export type PaymentInfo = {
+  month: number;
+  year: number;
+  status: PaymentStatus;
+  total: number;
+};
+
+export type PaymentStatus = "new" | "paid";
+
 export type PayrollDetail = {
   allowance: number;
   fullName: string;
@@ -31,7 +40,14 @@ export type PayrollDetail = {
   emailStatus?: "pending" | "success" | "fail";
 };
 
-export type Payroll = {
+// type Payroll = {
+//   month: number;
+//   year: number;
+//   total: Decimal;
+//   status?: PaymentStatus;
+// };
+
+export type PayrollQuery = {
   month?: number;
   year?: number;
 };

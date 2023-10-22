@@ -19,7 +19,8 @@ import {
   numberWithCommas,
 } from "@/utils/helper";
 import ConfirmModal from "./confirmModal";
-import { ENDPOINTS } from "@/app/constant/api";
+import { ENDPOINTS } from "@/constant/api";
+import { ROUTES } from "@/constant/routes";
 
 const PayrollTable = () => {
   const {
@@ -76,7 +77,7 @@ const PayrollTable = () => {
               <TableCell>{capitalizeFirstLetter(payroll.status)}</TableCell>
               <TableCell className="text-center">
                 <Link
-                  href={`/payroll-details?month=${payroll.month}&year=${payroll.year}`}
+                  href={`${ROUTES.payrollDetails}?month=${payroll.month}&year=${payroll.year}`}
                 >
                   <Button variant={"outline"} className="mr-1">
                     View

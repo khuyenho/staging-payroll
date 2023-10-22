@@ -2,9 +2,7 @@ import pdfMake from "pdfmake/build/pdfmake";
 import { NextApiRequest, NextApiResponse } from "next";
 import { NextRequest, NextResponse } from "next/server";
 import pdfFonts from "pdfmake/build/vfs_fonts";
-import { updateFileUser } from "@/lib/payrollDetails";
 import { bucket } from "@/lib/gcs";
-import { ENDPOINTS } from "@/app/constant/api";
 import { convertMonthToString } from "@/utils/helper";
 import { createPdfTemplate } from "@/utils/templatePdf";
 import { updateFileUrls } from "@/firebase/payrolls";
@@ -53,6 +51,8 @@ export const POST = async (req: NextRequest, res: NextApiResponse) => {
 
     const pdfDocGenerator = pdfMake.createPdf(docDefinition);
 
+    // Generate the PDF buffer using pdfmake
+
     const buffer = await new Promise<Buffer>((resolve, reject) => {
       pdfDocGenerator.getBuffer((result) => {
         resolve(result);
@@ -65,7 +65,6 @@ export const POST = async (req: NextRequest, res: NextApiResponse) => {
     const bucketName = process.env.GCS_BUCKET;
     const fileblob = bucket.file(filename);
     const blobStream = fileblob.createWriteStream();
-
     return new Promise<void>((resolve, reject) => {
       blobStream.on("finish", async () => {
         const url = `https://storage.googleapis.com/${bucketName}/${filename}`;

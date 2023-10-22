@@ -1,10 +1,9 @@
 import { importUsers } from "@/lib/users";
+import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
+import { authOptions } from "../../auth/[...nextauth]/route";
 
 export const POST = async (request: Request, res: Response) => {
-  // const session = await getServerSession(authOptions);
-  // if (session) {
-
   try {
     const req = await request.json(); // res now contains body
     const { employeeImportList } = req;
@@ -16,8 +15,4 @@ export const POST = async (request: Request, res: Response) => {
     console.log(e);
     return e;
   }
-  //   return NextResponse.json(res);
-
-  // }
-  // return NextResponse.json({ error: "Unauthorized" }, { status: res.status });
 };

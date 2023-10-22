@@ -1,20 +1,16 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-import { getFirestore, initializeFirestore } from "firebase/firestore";
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.FIREBASE_APP_ID,
-};
+import admin from "firebase-admin";
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-export const db = initializeFirestore(app, {
-  experimentalForceLongPolling: true,
-});
+const credential = JSON.parse(
+  Buffer.from(`${process.env.FIREBASE_ADMIN_CREDENTIALS}`, "base64").toString()
+);
+
+if (!admin.apps.length) {
+  try {
+    admin.initializeApp({
+      credential: admin.credential.cert(credential),
+    });
+  } catch (error) {
+    console.log("Firebase admin initialization error");
+  }
+}
+export default admin.firestore();

@@ -1,15 +1,13 @@
 import { NextResponse } from "next/server";
 import sgMail from "@sendgrid/mail";
-import { SENDER_EMAIL } from "@/app/constant/email";
+import { SENDER_EMAIL } from "@/constant/email";
 import { getFileFromStorage } from "@/lib/gcs";
+import { EmailType } from "@/types/email";
 
 // Set your SendGrid API key
 sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
 
 export const POST = async (request: Request) => {
-  // const session = await getServerSession(authOptions);
-  // if (session) {
-
   try {
     const req = await request.json(); // res now contains body
     const { email, employeeName, month, year, fileUrl } = req;
@@ -22,26 +20,13 @@ export const POST = async (request: Request) => {
       fileUrl,
     });
 
-    console.log(res);
-
     return NextResponse.json(res);
   } catch (e) {
     console.log(e);
     return e;
   }
-  //   return NextResponse.json(res);
-
-  // }
-  // return NextResponse.json({ error: "Unauthorized" }, { status: res.status });
 };
 
-type EmailType = {
-  toEmail: string;
-  employeeName: string;
-  month: number;
-  year: number;
-  fileUrl: string;
-};
 // Function to send the file via email using SendGrid
 const sendEmailWithAttachment = async ({
   toEmail,

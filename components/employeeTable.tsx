@@ -1,8 +1,7 @@
 "use client";
+
 import React from "react";
-import { toast } from "react-toastify";
-import Link from "next/link";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import {
   Table,
   TableBody,
@@ -11,19 +10,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "./ui/button";
-import {
-  capitalizeFirstLetter,
-  fetcher,
-  formatDateTime,
-  numberWithCommas,
-} from "@/utils/helper";
-import ConfirmModal from "./confirmModal";
-import { ENDPOINTS } from "@/app/constant/api";
+import { fetcher } from "@/utils/helper";
+import { ENDPOINTS } from "@/constant/api";
 import PasswordInput from "./passwordInput";
 
 const EmployeeTable = () => {
   const { data: users, error, isLoading } = useSWR(ENDPOINTS.users, fetcher);
+
   if (error) return "An error has occurred.";
   if (isLoading) return "Loading...";
 
@@ -59,4 +52,5 @@ const EmployeeTable = () => {
     </div>
   );
 };
+
 export default EmployeeTable;

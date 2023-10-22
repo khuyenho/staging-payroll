@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { Button } from "@/components/ui/button";
 import PayrollDetailsTable from "@/components/payrollDetailsTable";
 import {
   capitalizeFirstLetter,
@@ -10,7 +9,7 @@ import {
 } from "@/utils/helper";
 import PDFActionButton from "@/components/pdfActionButton";
 import useSWR from "swr";
-import { ENDPOINTS } from "@/app/constant/api";
+import { ENDPOINTS } from "@/constant/api";
 import { useSearchParams } from "next/navigation";
 
 type Params = {

@@ -31,6 +31,6 @@
     "app/api/auth/logout/route.ts",
     "app/api/payroll-details",
     "components/authStatus.js"
-, "utils/sessionTokenAccessor.ts"  ],
+, "utils/sessionTokenAccessor.ts", "app/(mainApp)/test/page.jsx"  ],
   "exclude": ["node_modules"]
 }
