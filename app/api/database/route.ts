@@ -13,6 +13,6 @@ export const GET = async (req: Request, res: Response) => {
   } catch (error) {
     // If the query fails, return the status as disconnected
     console.log(error);
-    return NextResponse.json({ status: "disconnected", error });
+    return error;
   }
 };
