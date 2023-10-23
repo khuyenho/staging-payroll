@@ -12,7 +12,6 @@ export const GET = async (req: Request, res: Response) => {
     return NextResponse.json({ status: "connected" });
   } catch (error) {
     // If the query fails, return the status as disconnected
-    console.log(error);
     return NextResponse.json({ message: error }, { status: 500 });
   }
 };
